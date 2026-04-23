@@ -3,53 +3,39 @@ pipeline {
 
     environment {
         DOCKER_IMAGE = "varshithaj/app-image"
+        TAG = "v1"
     }
 
     stages {
-
-        stage('Clone Repository') {
+        stage('Clone Code') {
             steps {
+                // Fixed: Removed the double 'git' keyword
                 git branch: 'main', url: 'https://github.com/VarshithaJ13/docker-jenkins.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    docker.build("${DOCKER_IMAGE}:latest")
-                }
+                // Fixed: Changed 'sh' to 'bat' and used Windows variable syntax
+                bat "docker build -t %DOCKER_IMAGE%:%TAG% ."
             }
         }
 
         stage('Login to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
+                usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    // Fixed: Changed 'sh' to 'bat'
+                    bat "echo %PASSWORD% | docker login -u %USERNAME% --password-stdin"
                 }
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Push Image') {
             steps {
-                script {
-                    docker.withRegistry('', 'dockerhub-creds') {
-                        docker.image("${DOCKER_IMAGE}:latest").push()
-                    }
-                }
+                // Fixed: Changed 'sh' to 'bat'
+                bat "docker push %DOCKER_IMAGE%:%TAG%"
             }
-        }
-    }
-
-    post {
-        success {
-            echo 'Image successfully built and pushed to Docker Hub'
-        }
-        failure {
-            echo 'Pipeline failed'
         }
     }
 }
