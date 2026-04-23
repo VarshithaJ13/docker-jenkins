@@ -26,7 +26,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-creds',
                 usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
                     // Fixed: Changed 'sh' to 'bat'
-                    bat "echo %PASSWORD% | docker login -u %USERNAME% --password-stdin"
+                    bat "echo %PASSWORD%| docker login -u %USERNAME% --password-stdin"
                 }
             }
         }
